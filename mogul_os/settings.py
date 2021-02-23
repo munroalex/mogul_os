@@ -39,9 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mogul_auth',
     'esi',
+    'rest_framework',
+    'rest_framework_jwt',
+    'rest_framework.authtoken',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -49,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+
 ]
 
 ROOT_URLCONF = 'mogul_os.urls'
@@ -115,6 +122,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+SESSION_COOKIE_DOMAIN=".localhost"
+SESSION_COOKIE_NAME="mogul_os"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -124,3 +134,41 @@ STATIC_URL = '/static/'
 ESI_SSO_CLIENT_ID = "9b82a5b0cfb8493aa9474d2fd01e8803"
 ESI_SSO_CLIENT_SECRET = "bmhS3eDZGTGGSlw9tq5GArFH1HXWLP5LbudgbgsN"
 ESI_SSO_CALLBACK_URL = "http://localhost:8000/sso/callback"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
+from datetime import timedelta
+
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:8080',
+    'http://localhost:8000',
+    'http://127.0.0.1:8080',
+    'http://127.0.0.1:8000',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+)
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://\w+\.localhost$",
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Access-Control-Allow-Credentials'
+]
+
