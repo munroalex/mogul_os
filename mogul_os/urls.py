@@ -38,4 +38,5 @@ urlpatterns = [
     path('link/trade_character', AuthViews.trade_token_view, name="character_trade"),
 
     path('api/live/transactions', AuthViews.live_transactions, name="live_transactions"),
+    path('api/live/item', AuthViews.eve_type, name="eve_item"),
 ]

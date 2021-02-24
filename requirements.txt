@@ -14,6 +14,7 @@ click-repl==0.1.6
 Django==3.1.7
 django-cors-headers==3.7.0
 django-esi==2.0.5
+django-eveuniverse==0.7.6
 django-picklefield==3.0.1
 django-userpreferences==0.1
 djangorestframework==3.12.2

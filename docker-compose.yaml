@@ -1,0 +1,26 @@
+version: '3.1'
+
+services:
+
+  mogul-db:
+    image: mysql/mysql-server:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mogul_os
+      MYSQL_DATABASE: mogul_os
+      MYSQL_USER: mogul_os
+      MYSQL_PASSWORD: mogul_os
+    ports:
+      - 3306:3306
+    volumes:
+      - my-datavolume:/var/lib/mysql
+
+  mogul-mq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+volumes:
+  my-datavolume:

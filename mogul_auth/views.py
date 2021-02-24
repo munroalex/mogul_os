@@ -4,12 +4,15 @@ from django.template import loader
 from django.contrib.auth import logout,authenticate,login
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
+from django.db import models
 
 from esi.clients import EsiClientProvider
 from esi.decorators import single_use_token,token_required,tokens_required
 from esi.models import Token
 from django.core import serializers
 from mogul_auth.serializers import EsiCharacterTransactions
+from mogul_backend.tasks import importtransactions
+from eveuniverse.models import EveType
 
 esi = EsiClientProvider(spec_file='mogul_auth/swagger.json')
 
@@ -57,7 +60,6 @@ def user_details(request,*args, **kwargs):
 
 @token_required(scopes=["esi-wallet.read_character_wallet.v1",'esi-skills.read_skills.v1','esi-assets.read_assets.v1','esi-markets.read_character_orders.v1'])
 def trade_token_view(request,token):
-    print(request.META)
     refer = 'http://localhost:3000/login'
     return redirect(refer)
 
@@ -74,6 +76,17 @@ def live_transactions(request,*args, **kwargs):
         ).results()
     except HTTPNotFound:
             print("error getting transactions")
-    item = result
-    serial = EsiCharacterTransactions(item,many=True) #validate the json input
+    serial = EsiCharacterTransactions(result,many=True) #validate the json input
+    #Let's also trigger it to pull and save to database..
+    importtransactions.delay(character_id)
     return JsonResponse(serial.data , safe=False)
+
+def eve_type(request):
+    type_id = int(request.GET.get('type_id'))
+    item, returned = EveType.objects.get_or_create_esi(id=type_id)
+    data = {
+        'name': item.name,
+        'volume': item.volume,
+    }
+    return JsonResponse(data, safe=False)
+    return HttpResponse(item)
