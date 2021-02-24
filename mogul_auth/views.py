@@ -9,6 +9,7 @@ from esi.clients import EsiClientProvider
 from esi.decorators import single_use_token,token_required,tokens_required
 from esi.models import Token
 from django.core import serializers
+from mogul_auth.serializers import EsiCharacterTransactions
 
 esi = EsiClientProvider(spec_file='mogul_auth/swagger.json')
 
@@ -74,5 +75,5 @@ def live_transactions(request,*args, **kwargs):
     except HTTPNotFound:
             print("error getting transactions")
     item = result
-    print(item)
-    return JsonResponse(item , safe=False)
+    serial = EsiCharacterTransactions(item,many=True) #validate the json input
+    return JsonResponse(serial.data , safe=False)

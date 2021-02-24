@@ -35,7 +35,7 @@
                 </div>
                 <!-- Menu item -->
                 <div class="navbar-item is-nav-link">
-                    <a class="is-centered-responsive" href="roadmap.html">Leaderboards {{ last_uri }}</a>
+                    <a class="is-centered-responsive" href="roadmap.html">Leaderboards</a>
                 </div>
             </div>
             <!-- Menu -->
