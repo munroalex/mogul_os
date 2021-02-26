@@ -45,7 +45,10 @@ INSTALLED_APPS = [
     'rest_framework_jwt',
     'rest_framework.authtoken',
     'corsheaders',
-    'eveuniverse'
+    'eveuniverse',
+    'drf_yasg',
+    'django_filters',
+    'cacheops'
 ]
 
 MIDDLEWARE = [
@@ -115,6 +118,24 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CACHEOPS_REDIS = {
+    'host': 'localhost', # redis-server is on same machine
+    'port': 6379,        # default redis port
+    'db': 1,             # SELECT non-default redis database
+                         # using separate redis db or redis instance
+                         # is highly recommended
+
+    'socket_timeout': 3,   # connection timeout in seconds, optional
+}
+CACHEOPS_DEFAULTS = {
+    'timeout': 60*60
+}
+CACHEOPS = {
+    'auth.user': {'ops': 'get', 'timeout': 60*15},
+    'auth.*': {'ops': ('fetch', 'get')},
+    'auth.permission': {'ops': 'all'},
+    '*.*': {},
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -148,7 +169,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-    )
+    ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
 from datetime import timedelta

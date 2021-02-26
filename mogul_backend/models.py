@@ -27,13 +27,14 @@ class Transaction(models.Model):
         help_text="The user to whom this transaction belongs."
     )
     # Alright let's add the post-processed data
-    type_name = models.CharField(default="Unknown",max_length=32)
-    station_name = models.CharField(default="Unknown",max_length=32)
+    type_name = models.CharField(default="Unknown",max_length=64)
+    station_name = models.CharField(default="Unknown",max_length=64)
     state = models.BooleanField(default=False, null=False)
     profit = models.DecimalField(default=0,max_digits=20,decimal_places=2)
     margin = models.DecimalField(default=0,max_digits=20,decimal_places=2)
     taxes = models.DecimalField(default=0,max_digits=20,decimal_places=2)
     stock_date = models.DateTimeField(null=True)
+    character_id = models.IntegerField(default=0)
 class Order(models.Model):
     duration = models.IntegerField()
     is_buy_order = models.BooleanField(default=0)
@@ -48,6 +49,8 @@ class Order(models.Model):
     type_id = models.IntegerField()
     volume_remain = models.IntegerField()
     volume_total = models.IntegerField()
+    character_id = models.IntegerField(default=0)
+    last_updated = models.DateTimeField(null=True,default=timezone.now)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -69,3 +72,20 @@ class Character(models.Model):
         help_text="The user to whom this character belongs."
     )
     last_esi_pull = models.DateTimeField(default=one_day_ago)
+
+class Structure(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    name = models.CharField(default="Unknown Structure",max_length=64,null=False)
+    owner_id = models.IntegerField()
+    solar_system_id = models.IntegerField()
+    type_id = models.IntegerField()
+    last_seen = models.DateTimeField(auto_now=True)
+    position_x = models.FloatField(
+        null=True, default=None, blank=True, help_text="x position in the solar system"
+    )
+    position_y = models.FloatField(
+        null=True, default=None, blank=True, help_text="y position in the solar system"
+    )
+    position_z = models.FloatField(
+        null=True, default=None, blank=True, help_text="z position in the solar system"
+    )

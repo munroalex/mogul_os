@@ -11,6 +11,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    swagger_schema = None
 
     def get_object(self):
         return self.request.user
@@ -18,7 +19,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-class TokenViewSet(viewsets.ModelViewSet):
+class TokenViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `retrieve` actions.
     """

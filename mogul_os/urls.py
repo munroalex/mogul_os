@@ -23,12 +23,32 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
 from mogul_auth.viewsets import UserViewSet, TokenViewSet
-from mogul_backend.viewsets import TransactionViewSet
+from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet
+
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Mogul OS Api",
+      default_version='v1',
+      description="MogulOS Application API",
+      terms_of_service="https://www.mogulos.com",
+      contact=openapi.Contact(email="jeronica@tackledinbelt.com"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=[permissions.AllowAny],
+)
+
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'user', UserViewSet)
 router.register(r'tokens', TokenViewSet,basename="get_queryset")
 router.register(r'transactions', TransactionViewSet, basename="get_queryset")
+router.register(r'characters', CharacterViewSet, basename="get_queryset")
+router.register(r'orders', OrderViewSet, basename="get_queryset")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,4 +61,8 @@ urlpatterns = [
 
     path('api/live/transactions', AuthViews.live_transactions, name="live_transactions"),
     path('api/live/item', AuthViews.eve_type, name="eve_item"),
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
+

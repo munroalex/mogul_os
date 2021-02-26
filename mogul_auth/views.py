@@ -58,7 +58,7 @@ def user_details(request,*args, **kwargs):
     return HttpResponse("You got the deets!");
     #return JsonResponse(request.user)
 
-@token_required(scopes=["esi-wallet.read_character_wallet.v1",'esi-skills.read_skills.v1','esi-assets.read_assets.v1','esi-markets.read_character_orders.v1'],new=True)
+@token_required(scopes=["esi-wallet.read_character_wallet.v1",'esi-skills.read_skills.v1','esi-assets.read_assets.v1','esi-markets.read_character_orders.v1','esi-universe.read_structures.v1','esi-search.search_structures.v1','esi-markets.structure_markets.v1'],new=True)
 def trade_token_view(request,token):
     refer = 'http://localhost:3000/login'
     return redirect("/")

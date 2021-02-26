@@ -22,5 +22,11 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+
+  mogul-redis:
+    image: library/redis
+    restart: always
+    ports:
+      - 6379:6379
 volumes:
   my-datavolume:
