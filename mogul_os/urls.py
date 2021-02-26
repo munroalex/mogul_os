@@ -23,10 +23,12 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
 from mogul_auth.viewsets import UserViewSet, TokenViewSet
+from mogul_backend.viewsets import TransactionViewSet
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'user', UserViewSet)
 router.register(r'tokens', TokenViewSet,basename="get_queryset")
+router.register(r'transactions', TransactionViewSet, basename="get_queryset")
 
 urlpatterns = [
     path('admin/', admin.site.urls),

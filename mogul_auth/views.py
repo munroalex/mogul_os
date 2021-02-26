@@ -35,7 +35,7 @@ def login_view(request,token):
             loginuser = User.objects.get(username=token.character_name)
         except User.DoesNotExist:
             # Let's create the user
-            loginuser = User.objects.crete_user(username=token.character_name,email=str(token.character_id) + '@eve.ccp', password=token.character_owner_hash)
+            loginuser = User.objects.create_user(username=token.character_name,email=str(token.character_id) + '@eve.ccp', password=token.character_owner_hash)
         except:
             return redirect(refer)
         # Let's finally log in
@@ -58,28 +58,15 @@ def user_details(request,*args, **kwargs):
     return HttpResponse("You got the deets!");
     #return JsonResponse(request.user)
 
-@token_required(scopes=["esi-wallet.read_character_wallet.v1",'esi-skills.read_skills.v1','esi-assets.read_assets.v1','esi-markets.read_character_orders.v1'])
+@token_required(scopes=["esi-wallet.read_character_wallet.v1",'esi-skills.read_skills.v1','esi-assets.read_assets.v1','esi-markets.read_character_orders.v1'],new=True)
 def trade_token_view(request,token):
     refer = 'http://localhost:3000/login'
-    return redirect(refer)
+    return redirect("/")
 
 def live_transactions(request,*args, **kwargs):
     character_id = request.GET.get('character_id');
-    required_scopes = ['esi-wallet.read_character_wallet.v1']
-    token = Token.get_token(character_id, required_scopes)
-    try:
-        result = esi.client.Wallet.get_characters_character_id_wallet_transactions(
-            # required parameter for endpoint
-            character_id = character_id,
-            # provide a valid access token, which wil be refresh the token if required
-            token = token.valid_access_token()
-        ).results()
-    except HTTPNotFound:
-            print("error getting transactions")
-    serial = EsiCharacterTransactions(result,many=True) #validate the json input
-    #Let's also trigger it to pull and save to database..
-    importtransactions.delay(character_id)
-    return JsonResponse(serial.data , safe=False)
+    importtransactions.delay(character_id, request.user.id)
+    return HttpResponse("Started pull")
 
 def eve_type(request):
     type_id = int(request.GET.get('type_id'))

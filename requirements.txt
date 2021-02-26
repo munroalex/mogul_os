@@ -1,4 +1,5 @@
 amqp==5.0.5
+argh==0.26.2
 asgiref==3.3.1
 attrs==20.3.0
 billiard==3.6.3.0
@@ -12,10 +13,12 @@ click-didyoumean==0.0.3
 click-plugins==1.1.1
 click-repl==0.1.6
 Django==3.1.7
+django-celery-beat==2.2.0
 django-cors-headers==3.7.0
 django-esi==2.0.5
 django-eveuniverse==0.7.6
 django-picklefield==3.0.1
+django-timezone-field==4.1.1
 django-userpreferences==0.1
 djangorestframework==3.12.2
 djangorestframework-jwt==1.11.0
@@ -31,7 +34,9 @@ oauthlib==3.1.0
 prompt-toolkit==3.0.16
 pyasn1==0.4.8
 PyJWT==1.7.1
+PyMySQL==1.0.2
 pyrsistent==0.17.3
+python-crontab==2.5.1
 python-dateutil==2.8.1
 python-jose==3.2.0
 pytz==2021.1
@@ -48,5 +53,6 @@ swagger-spec-validator==2.7.3
 typing-extensions==3.7.4.3
 urllib3==1.26.3
 vine==5.0.0
+watchdog==2.0.2
 wcwidth==0.2.5
 webcolors==1.11.1
