@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'eveuniverse',
     'drf_yasg',
     'django_filters',
-    'cacheops'
+    'cacheops',
+    'notifications',
 ]
 
 MIDDLEWARE = [

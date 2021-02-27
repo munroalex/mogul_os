@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from mogul_backend.helpers.orm import BulkCreateManager
 from mogul_backend.datehelpers import one_hour_ago,one_day_ago
 from eveuniverse.helpers import EveEntityNameResolver
+from notifications.signals import notify
 
 esi = EsiClientProvider(spec_file='mogul_auth/swagger.json')
 
@@ -142,7 +143,7 @@ def importorders(character_id, user_id):
         except:
             lastord = 0
         try:
-            currentorders = Order.objects.filter(user_id=user_id,character_id=character_id,is_corporation=0).values('order_id')
+            currentorders = Order.objects.filter(user_id=user_id,character_id=character_id,is_corporation=0,state="Open").values('order_id')
             currentorders = [pullme.get('order_id') for pullme in currentorders]
         except:
             currentorders = []
@@ -206,9 +207,10 @@ def importorders(character_id, user_id):
                         state=lookup.get('state'),
                         last_updated=timezone.now(),
                         )
-                # we need to alert with a signal now!!!
-                # signal entry
-                #signal entry
+                updateord = Order.objects.filter(order_id=lookup.get('order_id')).first()
+                notify.send(character, recipient=user, verb=f"Order has been {lookup.get('state')}",action_object=updateord)
+                #signal fire notification
+
     #Okay, let's get corp tokens now
     required_scopes = ['esi-markets.read_corporation_orders.v1']
     token = Token.get_token(character_id, required_scopes)
@@ -226,7 +228,7 @@ def importorders(character_id, user_id):
         except:
             lastord = 0
         try:
-            currentorders = Order.objects.filter(user_id=user_id,corporation_id=character.corporation_id,is_corporation=1).values('order_id')
+            currentorders = Order.objects.filter(user_id=user_id,corporation_id=character.corporation_id,is_corporation=1,state="Open").values('order_id')
             currentorders = [pullme.get('order_id') for pullme in currentorders]
         except:
             currentorders = []
@@ -291,9 +293,9 @@ def importorders(character_id, user_id):
                         state=lookup.get('state'),
                         last_updated=timezone.now(),
                         )
-                # we need to alert with a signal now!!!
-                # signal entry
-                #signal entry
+                updateord = Order.objects.filter(order_id=lookup.get('order_id')).first()
+                notify.send(character, recipient=user, verb=f"Order has been {lookup.get('state')}",action_object=updateord)
+                #signal fire notification
 
     return character_id
     #maybe we add the next task (aka processing, or flag the user for processing..)

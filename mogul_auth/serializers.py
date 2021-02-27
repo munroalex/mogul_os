@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
     groups = serializers.StringRelatedField(many=True)
     class Meta:
         model = User
-        fields = ['username', 'email', 'groups']
+        fields = ['username', 'groups']
 
 class TokenSerializer(serializers.ModelSerializer):
     scopes = serializers.StringRelatedField(many=True)

@@ -23,11 +23,12 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
 from mogul_auth.viewsets import UserViewSet, TokenViewSet
-from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet
+from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet,NotificationViewSet
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+import notifications.urls
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -49,6 +50,9 @@ router.register(r'tokens', TokenViewSet,basename="get_queryset")
 router.register(r'transactions', TransactionViewSet, basename="get_queryset")
 router.register(r'characters', CharacterViewSet, basename="get_queryset")
 router.register(r'orders', OrderViewSet, basename="get_queryset")
+router.register(r'messages', NotificationViewSet)
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -65,5 +69,6 @@ urlpatterns = [
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    re_path(r'^inbox/notifications/', include(notifications.urls, namespace='notifications')),
 ]
 
