@@ -23,7 +23,7 @@ class UserTransactionSerializer(serializers.ModelSerializer):
 class UserOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['duration','is_buy_order','is_corporation','issued','location_id','min_volume','order_id','price','range','region_id','type_id','volume_remain','volume_total','character_id','last_updated','user']
+        fields = ['duration','is_buy_order','is_corporation','issued','location_id','min_volume','order_id','price','range','region_id','type_id','volume_remain','volume_total','character_id','last_updated','user','item']
 
 class UserCharacterSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(many=False, read_only=True)

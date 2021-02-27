@@ -58,6 +58,7 @@ urlpatterns = [
     path('logout/', AuthViews.logout_view, name="logout"),
     re_path(r'^api/v1/', include(router.urls)), 
     path('link/trade_character', AuthViews.trade_token_view, name="character_trade"),
+    path('link/trade_corp', AuthViews.trade_token_corp_view, name="corp_trade"),
 
     path('api/live/transactions', AuthViews.live_transactions, name="live_transactions"),
     path('api/live/item', AuthViews.eve_type, name="eve_item"),

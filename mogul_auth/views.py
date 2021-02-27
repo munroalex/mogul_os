@@ -63,6 +63,11 @@ def trade_token_view(request,token):
     refer = 'http://localhost:3000/login'
     return redirect("/")
 
+@token_required(scopes=["esi-wallet.read_corporation_wallets.v1",'esi-skills.read_skills.v1','esi-assets.read_assets.v1','esi-markets.read_corporation_orders.v1','esi-universe.read_structures.v1','esi-search.search_structures.v1','esi-markets.structure_markets.v1'],new=True)
+def trade_token_corp_view(request,token):
+    refer = 'http://localhost:3000/login'
+    return redirect("/")
+
 def live_transactions(request,*args, **kwargs):
     character_id = request.GET.get('character_id');
     importtransactions.delay(character_id, request.user.id)
