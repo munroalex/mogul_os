@@ -3,6 +3,14 @@ from django.conf import settings
 from mogul_backend.models import Transaction,Character,Order
 from django.contrib.auth.models import User, Group
 from mogul_auth.serializers import UserSerializer
+from dynamic_preferences.types import BasePreferenceType
+from django import forms
+from mogul_backend.forms import PercentField
+from django.core.exceptions import ValidationError
+from dynamic_preferences.serializers import BaseSerializer
+from decimal import Decimal, DecimalException
+import decimal
+
 
 class TransactionSerializer(serializers.Serializer):
     client_id = serializers.IntegerField() #int32
@@ -54,3 +62,43 @@ class NotificationSerializer(serializers.Serializer):
     target = GenericNotificationRelatedField(read_only=True)
     action_object = GenericNotificationRelatedField(read_only=True)
     verb = serializers.CharField()
+    target_type = serializers.SerializerMethodField()
+    object_type = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = ['recipient','unread','target','action_object','verb','target_type','object_type']
+
+    def get_target_type(self,obj):
+        return obj.target.__class__.__name__
+    def get_object_type(self,obj):
+        return obj.action_object.__class__.__name__
+
+class PercentSerializer(BaseSerializer):
+
+    @classmethod
+    def clean_to_db_value(cls, value):
+        if not isinstance(value, decimal.Decimal):
+            raise cls.exception('DecimalSerializer can only serialize Decimal instances')
+        return value
+
+    @classmethod
+    def to_python(cls, value, **kwargs):
+        try:
+            #Let's do some math
+            value = decimal.Decimal(value)
+            if value is None:
+                return None
+            if (value < 0):
+                return 0
+            if (value > 1):
+                return 1
+            return decimal.Decimal(value)
+        except decimal.InvalidOperation:
+            raise cls.exception("Value {0} cannot be converted to decimal".format(value))
+
+class PercentagePreference(BasePreferenceType):
+    """
+    A preference type that stores a :py:class:`decimal.Decimal`.
+    """
+    field_class = PercentField
+    serializer = PercentSerializer

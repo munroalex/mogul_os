@@ -19,11 +19,12 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     def list(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-class TokenViewSet(viewsets.ReadOnlyModelViewSet):
+class TokenViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `retrieve` actions.
     """
     serializer_class = TokenSerializer
+    http_method_names = ['get','delete']
     def get_queryset(self):
         """
         This view should return a list of all the purchases

@@ -23,12 +23,13 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
 from mogul_auth.viewsets import UserViewSet, TokenViewSet
-from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet,NotificationViewSet
+from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet,NotificationViewSet,GlobalPreferencesViewSet
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 import notifications.urls
+from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -44,14 +45,15 @@ schema_view = get_schema_view(
 )
 
 # Routers provide an easy way of automatically determining the URL conf.
-router = routers.DefaultRouter()
-router.register(r'user', UserViewSet)
-router.register(r'tokens', TokenViewSet,basename="get_queryset")
-router.register(r'transactions', TransactionViewSet, basename="get_queryset")
-router.register(r'characters', CharacterViewSet, basename="get_queryset")
-router.register(r'orders', OrderViewSet, basename="get_queryset")
-router.register(r'messages', NotificationViewSet)
-
+router = routers.DefaultRouter(trailing_slash=False)
+router.register(r'user', UserViewSet, basename="user")
+router.register(r'tokens', TokenViewSet,basename="tokens")
+router.register(r'transactions', TransactionViewSet, basename="transactions")
+router.register(r'characters', CharacterViewSet, basename="characters")
+router.register(r'orders', OrderViewSet, basename="orders")
+router.register(r'messages', NotificationViewSet, basename="messages")
+router.register(r'global', GlobalPreferencesViewSet, basename='global')
+router.register(r'preferences', UserPreferencesViewSet, basename='preferences')
 
 
 urlpatterns = [

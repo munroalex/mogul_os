@@ -9,6 +9,11 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django_filters.rest_framework import DjangoFilterBackend
 from notifications.models import Notification
+from dynamic_preferences import exceptions
+from dynamic_preferences.settings import preferences_settings
+from dynamic_preferences.models import GlobalPreferenceModel
+from dynamic_preferences.api.serializers import GlobalPreferenceSerializer
+from dynamic_preferences.api.viewsets import GlobalPreferencePermission,PreferenceViewSet
 
 type_id_parameter = openapi.Parameter('type_id', openapi.IN_QUERY, description="Filter by type_id", type=openapi.TYPE_INTEGER)
 
@@ -23,7 +28,7 @@ class TransactionViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     serializer_class = UserTransactionSerializer
     filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
     ordering_fields = ['date']
-    ordering = ['date']
+    ordering = ['-date']
     filterset_fields = ['type_id']
 
     def get_queryset(self):
@@ -35,7 +40,7 @@ class OrderViewSet(generics.ListAPIView,viewsets.GenericViewSet):
     serializer_class = UserOrderSerializer
     filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
     ordering_fields = ['issued']
-    ordering = ['issued']
+    ordering = ['-issued']
     filterset_fields = ['type_id']
 
     def get_queryset(self):
@@ -55,3 +60,9 @@ class NotificationViewSet(generics.ListAPIView,viewsets.GenericViewSet):
     pagination_class = StandardResultsSetPagination
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
+
+class GlobalPreferencesViewSet(PreferenceViewSet):
+    queryset = GlobalPreferenceModel.objects.all()
+    serializer_class = GlobalPreferenceSerializer
+    permission_classes = [GlobalPreferencePermission]
+    http_method_names = ['get']
