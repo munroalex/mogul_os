@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from eveuniverse.models import EveType
 from django.utils import timezone
+from dynamic_preferences.models import PerInstancePreferenceModel
 
 
 def one_day_ago():
@@ -111,3 +112,13 @@ class Structure(models.Model):
     position_z = models.FloatField(
         null=True, default=None, blank=True, help_text="z position in the solar system"
     )
+
+
+class CharacterPreferenceModel(PerInstancePreferenceModel):
+    # note: you *have* to use the `instance` field
+    instance = models.ForeignKey(Character,on_delete=models.CASCADE)
+
+    class Meta:
+        # Specifying the app_label here is mandatory for backward
+        # compatibility reasons, see #96
+        app_label = 'mogul_backend'

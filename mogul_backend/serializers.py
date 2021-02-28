@@ -11,6 +11,7 @@ from dynamic_preferences.serializers import BaseSerializer
 from decimal import Decimal, DecimalException
 import decimal
 
+TWOPLACES = Decimal(10) ** -4
 
 class TransactionSerializer(serializers.Serializer):
     client_id = serializers.IntegerField() #int32
@@ -79,6 +80,8 @@ class PercentSerializer(BaseSerializer):
     def clean_to_db_value(cls, value):
         if not isinstance(value, decimal.Decimal):
             raise cls.exception('DecimalSerializer can only serialize Decimal instances')
+        # Let's parse the decimal to 2 places
+        return decimal.Decimal(value).quantize(TWOPLACES)
         return value
 
     @classmethod
@@ -92,7 +95,7 @@ class PercentSerializer(BaseSerializer):
                 return 0
             if (value > 1):
                 return 1
-            return decimal.Decimal(value)
+            return decimal.Decimal(value).quantize(TWOPLACES)
         except decimal.InvalidOperation:
             raise cls.exception("Value {0} cannot be converted to decimal".format(value))
 

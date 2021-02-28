@@ -46,9 +46,11 @@ def importtransactions(character_id, user_id):
         # Last transaction id got, let's start iterating yo
         bulk_mgr = BulkCreateManager(chunk_size=100)
         for trans in transresults:
-            if (trans.get('transaction_id') > lasttran) and (trans.get('is_personal') is not False):
+            if (trans.get('transaction_id') > lasttran) and (trans.get('is_personal') is True):
+                print(trans.get('transaction_id'))
                 #we add here
-                bulk_mgr.add(Transaction(
+                bulk_mgr.add(
+                    Transaction.objects.create(
                     client_id=trans.get('client_id'),
                     date=trans.get('date'),
                     is_buy=trans.get('is_buy'),
@@ -64,9 +66,8 @@ def importtransactions(character_id, user_id):
                     ))
             else:
                 #We've reached the breaking point, aka we are up to date..
-                break
-
-
+                pass
+            
         bulk_mgr.done()
 
     # Let's also see if there's a corp transaction endpoint
@@ -115,7 +116,7 @@ def importtransactions(character_id, user_id):
                         ))
                 else:
                     #We've reached the breaking point, aka we are up to date..
-                    break
+                    pass
         bulk_mgr.done()
     return character_id
     #maybe we add the next task (aka processing, or flag the user for processing..)

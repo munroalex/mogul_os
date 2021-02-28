@@ -5,6 +5,7 @@ from dynamic_preferences.preferences import Section
 from dynamic_preferences.registries import global_preferences_registry
 from dynamic_preferences.users.registries import user_preferences_registry
 from mogul_backend.serializers import PercentagePreference
+from mogul_backend.registries import character_preferences_registry
 import decimal
 
 # we create some section objects to link related preferences together
@@ -43,6 +44,27 @@ class SellBroker(PercentagePreference):
     help_text = 'The sell broker fee you usually pay. Typically 1\% in a structure'
 
 @user_preferences_registry.register
+class SalesTax(PercentagePreference):
+    section = trade
+    name = 'sales_tax'
+    default = decimal.Decimal(0.05)
+    help_text = 'The sales tax you usually pay. Usually 2.25 with max skills'
+
+@character_preferences_registry.register
+class BuyBroker(PercentagePreference):
+    section = trade
+    name = 'buy_broker'
+    default = decimal.Decimal(0.05)
+    help_text = 'The buy broker fee you usually pay. Typically 1\% in a structure'
+
+@character_preferences_registry.register
+class SellBroker(PercentagePreference):
+    section = trade
+    name = 'sell_broker'
+    default = decimal.Decimal(0.05)
+    help_text = 'The sell broker fee you usually pay. Typically 1\% in a structure'
+
+@character_preferences_registry.register
 class SalesTax(PercentagePreference):
     section = trade
     name = 'sales_tax'
