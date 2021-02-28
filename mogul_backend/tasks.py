@@ -594,7 +594,9 @@ def getprofitfromtransactions(user_id):
                 else:
                     quantity_to_process = 0
                     continue
-                
+            except:
+                pass
+
         # Let's also mark transaction as processed
         tran.profit = total_profit
         tran.taxes = totaltax
