@@ -23,7 +23,7 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
 from mogul_auth.viewsets import UserViewSet, TokenViewSet
-from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet,NotificationViewSet,GlobalPreferencesViewSet
+from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet,NotificationViewSet,GlobalPreferencesViewSet,StockViewSet,ProfitViewSet
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -54,7 +54,8 @@ router.register(r'orders', OrderViewSet, basename="orders")
 router.register(r'messages', NotificationViewSet, basename="messages")
 router.register(r'global', GlobalPreferencesViewSet, basename='global')
 router.register(r'preferences', UserPreferencesViewSet, basename='preferences')
-
+router.register(r'profit', ProfitViewSet, basename="profit")
+router.register(r'stock', StockViewSet, basename="stock")
 
 urlpatterns = [
     path('admin/', admin.site.urls),

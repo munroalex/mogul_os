@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.conf import settings
-from mogul_backend.models import Transaction,Character,Order
+from mogul_backend.models import Transaction,Character,Order,Stock,Profit
 from django.contrib.auth.models import User, Group
 from mogul_auth.serializers import UserSerializer
 from dynamic_preferences.types import BasePreferenceType
@@ -26,9 +26,16 @@ class TransactionSerializer(serializers.Serializer):
     unit_price = serializers.DecimalField(max_digits=24,decimal_places=2) #double
 
 class UserTransactionSerializer(serializers.ModelSerializer):
+    unit_price = serializers.FloatField()
+    profit = serializers.FloatField()
+    taxes = serializers.FloatField()
+    margin = serializers.DecimalField(max_digits=4, decimal_places=4)
+    is_buy = serializers.BooleanField()
+    is_personal = serializers.BooleanField()
+    processed = serializers.BooleanField()
     class Meta:
         model = Transaction
-        fields = ['client_id','date','is_buy','is_personal','journal_ref_id','location_id','quantity','transaction_id','type_id','unit_price','user','type_name','station_name','state','profit','margin','taxes']
+        fields = ['client_id','date','is_buy','is_personal','journal_ref_id','location_id','quantity','transaction_id','type_id','unit_price','user','type_name','station_name','processed','profit','margin','taxes']
 
 class UserOrderSerializer(serializers.ModelSerializer):
     item = serializers.StringRelatedField(many=False, read_only=True)
@@ -42,7 +49,28 @@ class UserCharacterSerializer(serializers.ModelSerializer):
         model = Character
         fields = ['character_id','corporation_id','alliance_id','name','user','last_esi_pull']
 
+class UserStockSerializer(serializers.ModelSerializer):
+    item = serializers.StringRelatedField(many=False, read_only=True)
+    user = serializers.StringRelatedField(many=False, read_only=True)
+    transaction = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
 
+    amount = serializers.FloatField()
+    taxes = serializers.FloatField()
+    tax_data = serializers.JSONField()
+    class Meta:
+        model = Stock
+        fields = ['user','transaction','item','date','updated','amount','quantity','station','taxes','tax_data']
+class UserProfitSerializer(serializers.ModelSerializer):
+    item = serializers.StringRelatedField(many=False, read_only=True)
+    user = serializers.StringRelatedField(many=False, read_only=True)
+    transaction = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+
+    amount = serializers.FloatField()
+    taxes = serializers.FloatField()
+    tax_data = serializers.JSONField()
+    class Meta:
+        model = Profit
+        fields = ['user','transaction','item','stock_data','date','updated','amount','quantity','station','taxes','tax_data']
 
 class GenericNotificationRelatedField(serializers.RelatedField):
 
@@ -105,3 +133,4 @@ class PercentagePreference(BasePreferenceType):
     """
     field_class = PercentField
     serializer = PercentSerializer
+

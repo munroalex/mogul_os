@@ -28,8 +28,8 @@ For development:
 `cd frontend/` & `npm run serve`
 `./manage.py runserver`
 
-Run celery + celerybeat with watchdog:
-`watchmedo auto-restart --directory="." --recursive -- celery -A mogul_os worker --beat --scheduler django --loglevel=info`
+Run celery + celerybeat:
+`celery -A mogul_os worker --beat --scheduler django --loglevel=info`
 
 Now you should have frontend running on :3000 and backend on :8000.
 

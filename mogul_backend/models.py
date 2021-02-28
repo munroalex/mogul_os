@@ -30,7 +30,7 @@ class Transaction(models.Model):
     # Alright let's add the post-processed data
     type_name = models.CharField(default="Unknown",max_length=64)
     station_name = models.CharField(default="Unknown",max_length=64)
-    state = models.BooleanField(default=False, null=False)
+    processed = models.BooleanField(default=False, null=False)
     profit = models.DecimalField(default=0,max_digits=20,decimal_places=2)
     margin = models.DecimalField(default=0,max_digits=20,decimal_places=2)
     taxes = models.DecimalField(default=0,max_digits=20,decimal_places=2)
@@ -122,3 +122,31 @@ class CharacterPreferenceModel(PerInstancePreferenceModel):
         # Specifying the app_label here is mandatory for backward
         # compatibility reasons, see #96
         app_label = 'mogul_backend'
+
+
+class Profit(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,help_text="The user to whom this profit belongs.")
+    transaction = models.ForeignKey(Transaction,on_delete=models.CASCADE,help_text="The transaction that created the profit.",null=True,related_name='profit_trans_row')
+    item = models.ForeignKey(EveType,on_delete=models.CASCADE,help_text="The item involved on this profit row.",null=True)
+    stock_data = models.JSONField()
+    date = models.DateTimeField(null=True,auto_now_add=True)
+    updated = models.DateTimeField(null=True,auto_now=True)
+    amount = models.DecimalField(default=0,max_digits=20,decimal_places=2)
+    quantity = models.IntegerField()
+    station = models.BigIntegerField()
+    taxes = models.DecimalField(default=0,max_digits=20,decimal_places=2)
+    unit_tax = models.DecimalField(default=0,max_digits=20,decimal_places=2)
+    tax_data = models.JSONField()
+
+class Stock(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,help_text="The user to whom this stock belongs.")
+    transaction = models.ForeignKey(Transaction,on_delete=models.CASCADE,help_text="The transaction that created the stock.",null=True,related_name='stock_trans_row')
+    item = models.ForeignKey(EveType,on_delete=models.CASCADE,help_text="The item involved on this stock row.",null=True)
+    date = models.DateTimeField(null=True,auto_now_add=True)
+    updated = models.DateTimeField(null=True,auto_now=True)
+    amount = models.DecimalField(default=0,max_digits=20,decimal_places=2)
+    quantity = models.IntegerField()
+    station = models.BigIntegerField()
+    taxes = models.DecimalField(default=0,max_digits=20,decimal_places=2)
+    unit_tax = models.DecimalField(default=0,max_digits=20,decimal_places=2)
+    tax_data = models.JSONField()

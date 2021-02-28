@@ -2,8 +2,8 @@ from django.contrib.auth.models import User, Group
 from esi.models import Token
 from rest_framework import viewsets,permissions,generics, mixins, views,filters
 from rest_framework.decorators import api_view
-from mogul_backend.serializers import UserTransactionSerializer,UserOrderSerializer,UserCharacterSerializer,NotificationSerializer
-from mogul_backend.models import Transaction, Order,Character
+from mogul_backend.serializers import UserTransactionSerializer,UserOrderSerializer,UserCharacterSerializer,NotificationSerializer,UserStockSerializer,UserProfitSerializer
+from mogul_backend.models import Transaction, Order,Character,Stock,Profit
 from rest_framework.pagination import PageNumberPagination
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -45,6 +45,32 @@ class OrderViewSet(generics.ListAPIView,viewsets.GenericViewSet):
 
     def get_queryset(self):
         queryset = Order.objects.all()
+        queryset.filter(user=self.request.user)
+        return queryset
+
+class StockViewSet(generics.ListAPIView,viewsets.GenericViewSet):
+    pagination_class = StandardResultsSetPagination
+    serializer_class = UserStockSerializer
+    filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
+    ordering_fields = ['date']
+    ordering = ['-date']
+    filterset_fields = ['item_id']
+
+    def get_queryset(self):
+        queryset = Stock.objects.all()
+        queryset.filter(user=self.request.user)
+        return queryset
+
+class ProfitViewSet(generics.ListAPIView,viewsets.GenericViewSet):
+    pagination_class = StandardResultsSetPagination
+    serializer_class = UserProfitSerializer
+    filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
+    ordering_fields = ['date']
+    ordering = ['-date']
+    filterset_fields = ['item_id']
+
+    def get_queryset(self):
+        queryset = Profit.objects.all()
         queryset.filter(user=self.request.user)
         return queryset
 
