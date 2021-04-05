@@ -1,6 +1,6 @@
 # mogul_backend/dynamic_preferences_registry.py
 
-from dynamic_preferences.types import BooleanPreference, StringPreference,DecimalPreference,ChoicePreference
+from dynamic_preferences.types import BooleanPreference, StringPreference,DecimalPreference,ChoicePreference,IntegerPreference
 from dynamic_preferences.preferences import Section
 from dynamic_preferences.registries import global_preferences_registry
 from dynamic_preferences.users.registries import user_preferences_registry
@@ -92,3 +92,10 @@ class LeaderboardEnable(BooleanPreference):
     name = 'leaderboard_enabled'
     default = False
     help_text = 'Would you like to be shown in the leaderboard?'
+
+@user_preferences_registry.register
+class DiscordDM(StringPreference):
+    section = notifications
+    name = 'discord_dm_channel'
+    default = "0"
+    help_text = 'The channel used for your DMs'

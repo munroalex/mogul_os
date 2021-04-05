@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,17 +48,26 @@ INSTALLED_APPS = [
     'corsheaders',
     'eveuniverse',
     'drf_yasg',
+    'offer',
     'django_filters',
     'cacheops',
     'notifications',
     'dynamic_preferences',
     'dynamic_preferences.users.apps.UserPreferencesConfig',
+    'channels',
+    'chat',
+    'django_singleton_admin',
+    'django_discord_connector',
+    'oscar_accounts.apps.AccountsConfig',
+    #'debug_toolbar',
+
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -66,6 +76,7 @@ MIDDLEWARE = [
     
 
 ]
+
 
 ROOT_URLCONF = 'mogul_os.urls'
 
@@ -86,8 +97,56 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mogul_os.wsgi.application'
+DEBUG_TOOLBAR_PANELS = [
+    'ddt_request_history.panels.request_history.RequestHistoryPanel',  # Here it is
+    'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    'debug_toolbar.panels.redirects.RedirectsPanel',
+    'debug_toolbar.panels.profiling.ProfilingPanel',
+]
+DEBUG_TOOLBAR_CONFIG = {
+    'RESULTS_STORE_SIZE': 100,
+}
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
 
+WSGI_APPLICATION = 'mogul_os.wsgi.application'
+ASGI_APPLICATION = "mogul_os.asgi.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -138,7 +197,13 @@ CACHEOPS = {
     'auth.user': {'ops': 'get', 'timeout': 60*15},
     'auth.*': {'ops': ('fetch', 'get')},
     'auth.permission': {'ops': 'all'},
-    '*.*': {},
+    'mogul_backend.order': {'ops': 'get', 'timeout': 60},
+    'mogul_backend.character': {'ops': 'get', 'timeout': 60},
+    'mogul_backend.structure': {'ops': 'get', 'timeout': 60},
+    'mogul_backend.transaction': {'ops': 'get', 'timeout': 60},
+    'mogul_backend.profit': {'ops': 'get', 'timeout': 60},
+    'eveuniverse.*': {'ops': 'all', 'timeout': 60},
+    '*.*': {'timeout': 60*5},
 }
 
 # Internationalization
@@ -157,6 +222,13 @@ USE_TZ = True
 SESSION_COOKIE_DOMAIN=".localhost"
 SESSION_COOKIE_NAME="mogul_os"
 
+ACCOUNTS_MIN_LOAD_VALUE=0
+ACCOUNTS_MAX_INITIAL_VALUE=99999999999999999
+OSCAR_ACCOUNTS_DASHBOARD_ITEMS_PER_PAGE=20
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -205,3 +277,14 @@ CORS_ALLOW_HEADERS = [
     'Access-Control-Allow-Credentials'
 ]
 
+
+CELERY_BEAT_SCHEDULE = {
+    'pull-users-every-five-minutes': {
+        'task': 'pullusers', 
+        'schedule': 300,
+    },
+    'update-transaction-metadata-every-five-minutes': {
+        'task': 'updatetransactionmeta', 
+        'schedule': 300,
+    },
+}

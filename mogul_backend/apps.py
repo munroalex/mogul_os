@@ -10,3 +10,4 @@ class MogulBackendConfig(AppConfig):
         CharacterPreferenceModel = self.get_model('CharacterPreferenceModel')
 
         preference_models.register(CharacterPreferenceModel, character_preferences_registry)
+        import mogul_backend.signals

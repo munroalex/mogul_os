@@ -37,6 +37,8 @@ class Transaction(models.Model):
     stock_date = models.DateTimeField(null=True)
     character_id = models.IntegerField(default=0)
     corporation_id = models.IntegerField(default=0)
+    def __str__(self):
+        return f'{self.quantity} {self.type_name} at {self.date.strftime("%Y-%m-%d %H:%M:%S")}'
 class Order(models.Model):
     duration = models.IntegerField()
     is_buy_order = models.BooleanField(null=True)
@@ -65,6 +67,16 @@ class Order(models.Model):
     @property
     def item(self):
         return EveType.objects.filter(id=self.type_id).first()
+    @property
+    def character(self):
+        return Character.objects.filter(character_id=self.character_id).first()
+    @property
+    def station(self):
+        if(self.location_id > 70000000):
+            # It's a structure, let's get that
+            return Structure.objects.filter(id=self.location_id).first()
+        else:
+            return EveType.objects.filter(id=self.location_id).first()
 
 class Character(models.Model):
     character_id = models.BigIntegerField(default=0)
@@ -79,6 +91,8 @@ class Character(models.Model):
         help_text="The user to whom this character belongs."
     )
     last_esi_pull = models.DateTimeField(default=one_day_ago)
+    def __str__(self):
+        return f'{self.name}'
 
 class Corporation(models.Model):
     corporation_id = models.BigIntegerField(default=0)
@@ -95,6 +109,8 @@ class Corporation(models.Model):
         help_text="The user to whom this character belongs."
     )
     last_esi_pull = models.DateTimeField(default=one_day_ago)
+    def __str__(self):
+        return f'{self.name}'
 
 class Structure(models.Model):
     id = models.BigIntegerField(primary_key=True)
@@ -112,6 +128,8 @@ class Structure(models.Model):
     position_z = models.FloatField(
         null=True, default=None, blank=True, help_text="z position in the solar system"
     )
+    def __str__(self):
+        return f'{self.name}'
 
 
 class CharacterPreferenceModel(PerInstancePreferenceModel):

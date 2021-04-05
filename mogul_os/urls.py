@@ -30,6 +30,8 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 import notifications.urls
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
+from django_discord_connector import views as DiscordViews
+import debug_toolbar
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -60,6 +62,12 @@ router.register(r'stock', StockViewSet, basename="stock")
 urlpatterns = [
     path('admin/', admin.site.urls),
     re_path(r'^sso/', include('esi.urls', namespace='esi')),
+    path('discord/callback', AuthViews.sso_callback,
+         name="django-discord-connector-sso-callback"),
+    path('discord/token/add/', DiscordViews.add_sso_token,
+         name="django-discord-connector-sso-token-add"),
+    path('discord/token/remove/<int:pk>/', DiscordViews.remove_sso_token,
+         name="django-discord-connector-sso-token-remove"),
 
     path('login/', AuthViews.login_view, name="login"),
     path('logout/', AuthViews.logout_view, name="logout"),
@@ -73,5 +81,7 @@ urlpatterns = [
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     re_path(r'^inbox/notifications/', include(notifications.urls, namespace='notifications')),
+    path('chat/', include('chat.urls')),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]
 

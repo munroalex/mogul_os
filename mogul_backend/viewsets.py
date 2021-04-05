@@ -14,6 +14,9 @@ from dynamic_preferences.settings import preferences_settings
 from dynamic_preferences.models import GlobalPreferenceModel
 from dynamic_preferences.api.serializers import GlobalPreferenceSerializer
 from dynamic_preferences.api.viewsets import GlobalPreferencePermission,PreferenceViewSet
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from cacheops import cached_as,cached_view_as
 
 type_id_parameter = openapi.Parameter('type_id', openapi.IN_QUERY, description="Filter by type_id", type=openapi.TYPE_INTEGER)
 
@@ -42,6 +45,10 @@ class OrderViewSet(generics.ListAPIView,viewsets.GenericViewSet):
     ordering_fields = ['issued']
     ordering = ['-issued']
     filterset_fields = ['type_id']
+
+    
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = Order.objects.all()

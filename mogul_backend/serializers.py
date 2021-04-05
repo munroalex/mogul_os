@@ -11,6 +11,7 @@ from dynamic_preferences.serializers import BaseSerializer
 from decimal import Decimal, DecimalException
 import decimal
 
+
 TWOPLACES = Decimal(10) ** -4
 
 class TransactionSerializer(serializers.Serializer):
@@ -29,7 +30,7 @@ class UserTransactionSerializer(serializers.ModelSerializer):
     unit_price = serializers.FloatField()
     profit = serializers.FloatField()
     taxes = serializers.FloatField()
-    margin = serializers.DecimalField(max_digits=4, decimal_places=4)
+    margin = serializers.DecimalField(max_digits=10, decimal_places=4)
     is_buy = serializers.BooleanField()
     is_personal = serializers.BooleanField()
     processed = serializers.BooleanField()
@@ -39,9 +40,12 @@ class UserTransactionSerializer(serializers.ModelSerializer):
 
 class UserOrderSerializer(serializers.ModelSerializer):
     item = serializers.StringRelatedField(many=False, read_only=True)
+    character = serializers.StringRelatedField(many=False, read_only=True)
+    station = serializers.StringRelatedField(many=False, read_only=True)
+
     class Meta:
         model = Order
-        fields = ['duration','is_buy_order','is_corporation','issued','location_id','min_volume','order_id','price','range','region_id','type_id','volume_remain','volume_total','character_id','last_updated','user','item','state']
+        fields = ['duration','is_buy_order','is_corporation','issued','location_id','min_volume','order_id','price','range','region_id','type_id','volume_remain','volume_total','character_id','last_updated','user','item','state','character','station']
 
 class UserCharacterSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(many=False, read_only=True)
@@ -52,7 +56,6 @@ class UserCharacterSerializer(serializers.ModelSerializer):
 class UserStockSerializer(serializers.ModelSerializer):
     item = serializers.StringRelatedField(many=False, read_only=True)
     user = serializers.StringRelatedField(many=False, read_only=True)
-    transaction = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
 
     amount = serializers.FloatField()
     taxes = serializers.FloatField()
