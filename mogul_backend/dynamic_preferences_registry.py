@@ -21,6 +21,12 @@ class SiteTitle(StringPreference):
     name = 'title'
     default = 'Mogul OS'
     required = True
+@global_preferences_registry.register
+class HoldingCorp(StringPreference):
+    section = general
+    name = 'holding_corp'
+    default = 98442247
+    required = True
 
 @user_preferences_registry.register
 class OrderNotificationsEnabled(BooleanPreference):

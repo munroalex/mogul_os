@@ -29,10 +29,11 @@ class StandardResultsSetPagination(PageNumberPagination):
 class TransactionViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     pagination_class = StandardResultsSetPagination
     serializer_class = UserTransactionSerializer
-    filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend,filters.OrderingFilter,filters.SearchFilter]
     ordering_fields = ['date']
     ordering = ['-date']
-    filterset_fields = ['type_id']
+    filterset_fields = ['type_id','is_buy']
+    search_fields = ['type_name']
 
     def get_queryset(self):
         queryset = Transaction.objects.filter(user=self.request.user)

@@ -148,6 +148,8 @@ CHANNEL_LAYERS = {
     },
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -219,7 +221,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-SESSION_COOKIE_DOMAIN=".localhost"
+SESSION_COOKIE_DOMAIN="localhost"
 SESSION_COOKIE_NAME="mogul_os"
 
 ACCOUNTS_MIN_LOAD_VALUE=0
@@ -288,3 +290,4 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 300,
     },
 }
+CELERY_ALWAYS_EAGER = True

@@ -8,11 +8,12 @@ Adjust settings.py in mogul_os if needed. It should mostly work out of the box..
 
 run `docker-compose up` on a second terminal tab
 
-`./manage.py migrate`
-`./manage.py eveuniverse_load_data map`
-`./manage.py eveuniverse_load_data ships`
-`./manage.py eveuniverse_load_data structures`
-`./manage.py mogulos_backend_load_types`
+`./manage.py migrate`  
+`./manage.py eveuniverse_load_data map`  
+`./manage.py eveuniverse_load_data ships`  
+`./manage.py eveuniverse_load_data structures`  
+`./manage.py mogulos_backend_load_types`  
+`./manage.py oscar_accounts_init`  
 
 This builds up the database
 
@@ -20,7 +21,7 @@ For development:
 `./manage.py runserver`
 
 Run celery + celerybeat:
-`celery -A mogul_os worker --beat --scheduler django --loglevel=info`
+`celery -A mogul_os worker --beat --scheduler django --loglevel=info`  
 
 Now you should have frontend running on :3000 and backend on :8000.
 
@@ -34,7 +35,7 @@ To try out the discord stuff, create a bot add it to a test guild and add the de
 
 
 Initial URLs
-Add character token: [http://localhost:8000/link/trade_character](http://localhost:8000/link/trade_character)
-Add corp token token: [http://localhost:8000/link/trade_corp](http://localhost:8000/link/trade_corp)
-REst API: [http://localhost:8000/api/v1/](http://localhost:8000/api/v1/)
-Swagger: [http://localhost:8000/swagger/](http://localhost:8000/swagger/)
+Add character token: [http://localhost:8000/link/trade_character](http://localhost:8000/link/trade_character)  
+Add corp token token: [http://localhost:8000/link/trade_corp](http://localhost:8000/link/trade_corp)  
+REst API: [http://localhost:8000/api/v1/](http://localhost:8000/api/v1/)  
+Swagger: [http://localhost:8000/swagger/](http://localhost:8000/swagger/)  

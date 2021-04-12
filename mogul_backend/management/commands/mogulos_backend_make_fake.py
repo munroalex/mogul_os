@@ -31,7 +31,7 @@ class Command(BaseCommand):
         clients = [96368672]
         user = User.objects.get(id=1)
         trans = 0
-        while trans < 50000:
+        while trans < 20:
             #let's make a new transaction
             item, _ = EveType.objects.get_or_create_esi(id=random.choice(ships))
             #let's make a fake buy transacton

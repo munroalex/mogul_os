@@ -32,7 +32,7 @@ import notifications.urls
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from django_discord_connector import views as DiscordViews
 import debug_toolbar
-
+from mogul_auth import views as authviews
 schema_view = get_schema_view(
    openapi.Info(
       title="Mogul OS Api",
@@ -61,7 +61,7 @@ router.register(r'stock', StockViewSet, basename="stock")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path(r'^sso/', include('esi.urls', namespace='esi')),
+    path('sso/callback/', authviews.receive_callback, name='callback'),
     path('discord/callback', AuthViews.sso_callback,
          name="django-discord-connector-sso-callback"),
     path('discord/token/add/', DiscordViews.add_sso_token,

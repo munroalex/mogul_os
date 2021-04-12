@@ -105,7 +105,7 @@ class Yeti(commands.Cog, name="Yeti Commands"):
     def get_last_transaction(self,ctx):
         dbuser = DiscordUser.objects.filter(external_id=ctx.author.id).first()
         token = DiscordToken.objects.filter(discord_user_id=dbuser.id).first()
-        results = Transaction.objects.filter(user=token.user).last()
+        results = Transaction.objects.filter(user=token.user).order_by('date').last()
         result = async_to_sync(ctx.send)(f"Latest transaction: {results}")
 
 
