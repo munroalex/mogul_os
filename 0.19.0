@@ -1,0 +1,5 @@
+Collecting httplib2
+  Downloading httplib2-0.19.1-py3-none-any.whl (95 kB)
+Requirement already satisfied: pyparsing<3,>=2.4.2 in c:\git\mogulos\lib\site-packages (from httplib2) (2.4.7)
+Installing collected packages: httplib2
+Successfully installed httplib2-0.19.1
