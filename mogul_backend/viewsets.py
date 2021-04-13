@@ -42,10 +42,11 @@ class TransactionViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
 class OrderViewSet(generics.ListAPIView,viewsets.GenericViewSet):
     pagination_class = StandardResultsSetPagination
     serializer_class = UserOrderSerializer
-    filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend,filters.OrderingFilter,filters.SearchFilter]
     ordering_fields = ['issued']
     ordering = ['-issued']
-    filterset_fields = ['type_id']
+    filterset_fields = ['type_id','state']
+    search_fields = ['item','station']
 
     
     def dispatch(self, request, *args, **kwargs):

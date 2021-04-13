@@ -7,7 +7,7 @@ from esi.decorators import single_use_token,token_required,tokens_required
 from esi.models import Token
 from django.conf import settings
 from django.utils import timezone
-from mogul_backend.models import Transaction, Character, Order, Structure, Stock,Profit
+from mogul_backend.models import Transaction, Character, Order, Structure, Stock,Profit,Journal
 from django.contrib.auth.models import User
 from mogul_backend.helpers.orm import BulkCreateManager
 from mogul_backend.datehelpers import one_hour_ago,one_day_ago
@@ -161,6 +161,122 @@ def importtransactions(self,character_id, user_id):
             #maybe we add the next task (aka processing, or flag the user for processing..)
         else:
             logger.debug('Transactions for  %s is already being imported by another worker', character_id)
+
+@shared_task(name="importjournals",bind=True) # requires character_id and the user_id
+def importjournals(self,character_id, user_id):
+    character_id_hexdigest = md5(str(character_id).encode()).hexdigest()
+    lock_id = '{0}-lock-{1}'.format(self.name, character_id_hexdigest)
+    logger.debug('Importing journals: %s', character_id)
+
+    with task_locker(lock_id) as acquired:
+        if acquired:
+            print("Task Acquired, importing")
+            required_scopes = ['esi-wallet.read_character_wallet.v1']
+            token = Token.get_token(character_id, required_scopes)
+            user = User.objects.get(id=user_id)
+            character = Character.objects.filter(character_id=character_id).first()
+            if character.corporation_id is None:
+                updatecharactermeta()
+                character = Character.objects.filter(character_id=character_id).first()
+            if (token is not None) and (token is not False):
+                transresults = esi.client.Wallet.get_characters_character_id_wallet_journal(
+                    # required parameter for endpoint
+                    character_id = character_id,
+                    # provide a valid access token, which wil be refresh the token if required
+                    token = token.valid_access_token()
+                ).results()
+                print(transresults)
+                # Let's also get the last transaction from the user..
+                try:
+                    lasttran = Journal.objects.filter(user_id=user_id,character_id=character_id).latest('ref_id')
+                    lasttran = lasttran.ref_id
+                except:
+                    lasttran = 0
+                # Last transaction id got, let's start iterating yo
+                bulk_mgr = BulkCreateManager(chunk_size=100)
+                for trans in transresults:
+                    if (trans.get('id') > lasttran):
+                        #we add here
+                        bulk_mgr.add(
+                            Journal.objects.create(
+                            amount=trans.get('amount'),
+                            balance=trans.get('balance'),
+                            context_id=trans.get('context_id'),
+                            context_id_type=trans.get('context_id_type'),
+                            date=trans.get('date'),
+                            description=trans.get('description'),
+                            first_party_id=trans.get('first_party_id'),
+                            ref_id=trans.get('id'),
+                            reason=trans.get('reason'),
+                            ref_type=trans.get('ref_type'),
+                            second_party_id=trans.get('second_party_id'),
+                            tax=trans.get('tax'),
+                            tax_receiver_id=trans.get('tax_receiver_id'),
+                            character_id=character_id,
+                            user=user,
+                            ))
+                    else:
+                        #We've reached the breaking point, aka we are up to date..
+                        pass
+
+                bulk_mgr.done()
+
+            # Let's also see if there's a corp transaction endpoint
+            # Clear old variables
+            token = None
+            required_scopes = None
+            bulk_mgr = None
+            lasttran = None
+
+            required_scopes = ['esi-wallet.read_corporation_wallets.v1']
+            token = Token.get_token(character_id, required_scopes)
+            if (token is not None) and (token is not False):
+                division = 1
+                bulk_mgr = BulkCreateManager(chunk_size=100)
+                while division < 8:
+                    try:
+                        lasttran = Journal.objects.filter(user_id=user_id,corporation_id=character.corporation_id,division_id=division).latest('ref_id')
+                        lasttran = lasttran.ref_id
+                    except:
+                        lasttran = 0
+                    transresults = esi.client.Wallet.get_corporations_corporation_id_wallets_division_journal(
+                        # required parameter for endpoint
+                        corporation_id = character.corporation_id,
+                        division = division,
+                        # provide a valid access token, which wil be refresh the token if required
+                        token = token.valid_access_token()
+                    ).results()
+                    division = division + 1
+                    for trans in transresults:
+                        if (trans.get('id') > lasttran):
+                            #we add here
+                            bulk_mgr.add(Journal(
+                                amount=trans.get('amount'),
+                                balance=trans.get('balance'),
+                                context_id=trans.get('context_id'),
+                                context_id_type=trans.get('context_id_type'),
+                                date=trans.get('date'),
+                                description=trans.get('description'),
+                                first_party_id=trans.get('first_party_id'),
+                                ref_id=trans.get('id'),
+                                reason=trans.get('reason'),
+                                ref_type=trans.get('ref_type'),
+                                second_party_id=trans.get('second_party_id'),
+                                tax=trans.get('tax'),
+                                tax_receiver_id=trans.get('tax_receiver_id'),
+                                character_id=character_id,
+                                corporation_id=character.corporation_id,
+                                division_id=division-1,
+                                user=user,
+                                ))
+                        else:
+                            #We've reached the breaking point, aka we are up to date..
+                            pass
+                bulk_mgr.done()
+            return character_id
+            #maybe we add the next task (aka processing, or flag the user for processing..)
+        else:
+            logger.debug('Journals for  %s is already being imported by another worker', character_id)
 
 @shared_task(name="importorders") # requires character_id and the user_id
 def importorders(character_id, user_id):
@@ -361,6 +477,7 @@ def pullusercharacters(user_id):
         for char in pullthis:
             importtransactions.delay(char, user_id)
             importorders.delay(char,user_id)
+            importjournals.delay(char,user_id)
             #Let's also update the character
             Character.objects.filter(character_id=char).update(last_esi_pull=timezone.now())
     except:

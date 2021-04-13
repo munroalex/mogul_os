@@ -43,20 +43,21 @@ def send_notification_to_webhook(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Notification)
 def send_notification_to_discord(sender, instance, **kwargs):
-    if isinstance(instance, Order):
-        if (instance.is_buy_order is not None) and (instance.is_buy_order is not False):
+    action_object = instance.action_object
+    if isinstance(action_object, Order):
+        if (action_object.is_buy_order is not None) and (action_object.is_buy_order is not False):
             buyorder = "buying"
         else:
             buyorder = "selling"
-        dembed=Embed(title="Order Completed", description=f"Your order __{buyorder}__ {instance.volume_total} __{instance.item}__ has been {instance.state}", color=0x008080)
-        dembed.set_thumbnail(url=f"https://imageserver.eveonline.com/Type/{instance.type_id}_64.png")
-        dembed.add_field(name="Status", value=f"{instance.state}", inline=True)
-        dembed.add_field(name="Quantities", value=f"{instance.volume_total - instance.volume_remain}/{instance.volume_total}", inline=True)
-        dembed.add_field(name="Station", value=f"{instance.station}", inline=True)
-        dembed.add_field(name="Range", value=f"{instance.range}", inline=True)
-        delta = instance.updated_at - instance.issued
+        dembed=Embed(title="Order Completed", description=f"Your order __{buyorder}__ {action_object.volume_total} __{action_object.item}__ has been {action_object.state}", color=0x008080)
+        dembed.set_thumbnail(url=f"https://imageserver.eveonline.com/Type/{action_object.type_id}_64.png")
+        dembed.add_field(name="Status", value=f"{action_object.state}", inline=True)
+        dembed.add_field(name="Quantities", value=f"{action_object.volume_total - action_object.volume_remain}/{action_object.volume_total}", inline=True)
+        dembed.add_field(name="Station", value=f"{action_object.station}", inline=True)
+        dembed.add_field(name="Range", value=f"{action_object.range}", inline=True)
+        delta = action_object.last_updated - action_object.issued
         dembed.add_field(name="Duration", value=f"{delta.days}", inline=True)
-        dembed.add_field(name="Character", value=f"{instance.character}", inline=True)
-        dembed.add_field(name="Price", value=f"{instance.price}", inline=True)
-        dembed.set_footer(text=f"Mogul_OS | {instance.last_updated}")
-        instance.recipient.dm_user(embed=dembed)
+        dembed.add_field(name="Character", value=f"{action_object.character}", inline=True)
+        dembed.add_field(name="Price", value=f"{action_object.price}", inline=True)
+        dembed.set_footer(text=f"Mogul_OS | {action_object.last_updated}")
+        instance.recipient.dm_user(embed=dembed.to_dict())

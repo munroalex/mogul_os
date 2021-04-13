@@ -6,6 +6,7 @@ from mogul_auth.serializers import UserSerializer, TokenSerializer
 from rest_framework.response import Response
 from esi.clients import EsiClientProvider
 from django.utils import timezone
+from mogul_backend.models import Transaction, Character, Order, Structure, Stock,Profit
 
 esi = EsiClientProvider(spec_file='mogul_auth/swagger.json')
 
@@ -43,24 +44,52 @@ class TokenViewSet(viewsets.ModelViewSet):
         serializer = TokenSerializer(token)
         data = serializer.data
         # Okay, let's get the cache timers
-        operation = esi.client.Wallet.get_characters_character_id_wallet_transactions(
-            # required parameter for endpoint
-            character_id = token.character_id,
-            # provide a valid access token, which wil be refresh the token if required
-            token = token.valid_access_token()
-        )
-        operation.request_config.also_return_response = True
-        transresults, response = operation.results()
-        data['WalletExpires'] = response.headers['Expires']
+        # Let's see if its a character token
+        required_scopes = ['esi-wallet.read_character_wallet.v1']
+        check = Token.get_token(token.character_id, required_scopes)
+        if(check):
+            operation = esi.client.Wallet.get_characters_character_id_wallet_transactions(
+                # required parameter for endpoint
+                character_id = token.character_id,
+                # provide a valid access token, which wil be refresh the token if required
+                token = token.valid_access_token()
+            )
+            operation.request_config.also_return_response = True
+            transresults, response = operation.results()
+            data['WalletExpires'] = response.headers['Expires']
 
-        operation = esi.client.Market.get_characters_character_id_orders(
-            # required parameter for endpoint
-            character_id = token.character_id,
-            # provide a valid access token, which wil be refresh the token if required
-            token = token.valid_access_token()
-        )
-        operation.request_config.also_return_response = True
-        transresults, response = operation.results()
-        data['OrderExpires'] = response.headers['Expires']
+            operation = esi.client.Market.get_characters_character_id_orders(
+                # required parameter for endpoint
+                character_id = token.character_id,
+                # provide a valid access token, which wil be refresh the token if required
+                token = token.valid_access_token()
+            )
+            operation.request_config.also_return_response = True
+            transresults, response = operation.results()
+            data['OrderExpires'] = response.headers['Expires']
+        required_scopes = ['esi-wallet.read_corporation_wallets.v1']
+        check = Token.get_token(token.character_id, required_scopes)
+        if(check):
+            character = Character.objects.filter(character_id=token.character_id).first()
+            operation = esi.client.Wallet.get_corporations_corporation_id_wallets_division_transactions(
+                # required parameter for endpoint
+                corporation_id = character.corporation_id,
+                division = 1,
+                # provide a valid access token, which wil be refresh the token if required
+                token = token.valid_access_token()
+            )
+            operation.request_config.also_return_response = True
+            transresults, response = operation.results()
+            data['WalletExpires'] = response.headers['Expires']
+
+            operation = esi.client.Market.get_corporations_corporation_id_orders(
+                # required parameter for endpoint
+                corporation_id = character.corporation_id,
+                # provide a valid access token, which wil be refresh the token if required
+                token = token.valid_access_token()
+            )
+            operation.request_config.also_return_response = True
+            transresults, response = operation.results()
+            data['OrderExpires'] = response.headers['Expires']
         data['CurrentTime'] = timezone.now()
         return Response(data)

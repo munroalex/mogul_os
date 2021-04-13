@@ -39,6 +39,31 @@ class Transaction(models.Model):
     corporation_id = models.IntegerField(default=0)
     def __str__(self):
         return f'{self.quantity} {self.type_name} at {self.date.strftime("%Y-%m-%d %H:%M:%S")}'
+
+class Journal(models.Model):
+    amount = models.DecimalField(default=0,max_digits=20,decimal_places=2)
+    balance = models.DecimalField(default=0,max_digits=20,decimal_places=2)
+    context_id = models.BigIntegerField(null=True)
+    context_id_type = models.CharField(null=True,max_length=64)
+    date = models.DateTimeField()
+    description = models.CharField(max_length=128)
+    first_party_id = models.BigIntegerField()
+    ref_id = models.BigIntegerField()
+    reason = models.CharField(max_length=64,null=True)
+    ref_type = models.CharField(max_length=64,null=True)
+    second_party_id = models.BigIntegerField()
+    tax = models.DecimalField(default=0,max_digits=20,decimal_places=2,null=True)
+    tax_receiver_id = models.BigIntegerField(null=True)
+    character_id = models.IntegerField(default=0)
+    corporation_id = models.IntegerField(default=0)
+    division_id = models.IntegerField(default=0)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text="The user to whom this journal belongs."
+    )
 class Order(models.Model):
     duration = models.IntegerField()
     is_buy_order = models.BooleanField(null=True)
