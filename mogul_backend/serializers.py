@@ -9,6 +9,7 @@ from mogul_backend.forms import PercentField
 from django.core.exceptions import ValidationError
 from dynamic_preferences.serializers import BaseSerializer
 from decimal import Decimal, DecimalException
+from oscar_accounts.models import Transfer
 import decimal
 
 
@@ -53,6 +54,11 @@ class UserCharacterSerializer(serializers.ModelSerializer):
         model = Character
         fields = ['character_id','corporation_id','alliance_id','name','user','last_esi_pull']
 
+class TransferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transfer
+        fields = '__all__'
+
 class UserStockSerializer(serializers.ModelSerializer):
     item = serializers.StringRelatedField(many=False, read_only=True)
     user = serializers.StringRelatedField(many=False, read_only=True)
@@ -84,6 +90,8 @@ class GenericNotificationRelatedField(serializers.RelatedField):
             serializer = UserTransactionSerializer(value)
         if isinstance(value, User):
             serializer = UserSerializer(value)
+        if isinstance(value, Transfer):
+            serializer = TransferSerializer(value)
 
         return serializer.data
 

@@ -61,3 +61,11 @@ def send_notification_to_discord(sender, instance, **kwargs):
         dembed.add_field(name="Price", value=f"{action_object.price}", inline=True)
         dembed.set_footer(text=f"Mogul_OS | {action_object.last_updated}")
         instance.recipient.dm_user(embed=dembed.to_dict())
+    elif instance.verb == "Subscribed":
+        dembed=Embed(title="Subscription Processed", description=f"Your subscription has been processed!", color=0x008080)
+        dembed.set_footer(text=f"Mogul_OS")
+        instance.recipient.dm_user(embed=dembed.to_dict())
+    elif instance.verb == "Your deposit has been processed":
+        dembed=Embed(title="Your deposit has been processed", description=f"You can now use your balance from your deposit", color=0x008080)
+        dembed.set_footer(text=f"Mogul_OS")
+        instance.recipient.dm_user(embed=dembed.to_dict())

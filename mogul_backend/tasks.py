@@ -22,6 +22,7 @@ from contextlib import contextmanager
 from django.core.cache import cache
 from hashlib import md5
 from celery.utils.log import get_task_logger
+from oscar_accounts import facade,models
 
 logger = get_task_logger(__name__)
 
@@ -492,6 +493,28 @@ def pullusers():
     for getuser in userlist:
         pullusercharacters.delay(getuser.id)
         getstockfromtransactions.delay(getuser.id)
+    return True
+
+@shared_task(name="processsubscriptions") # requires a user_id
+def processsubscriptions():
+    # let's first get user's characters
+    journallist = Journal.objects.filter(second_party_id=98442247,ref_type='player_donation').order_by('-date').all()
+    bank, _ = models.Account.objects.get_or_create(name="Bank")
+    for journal in journallist:
+        #Let's get the main
+        required_scopes = ['publicData']
+        token = Token.get_token(journal.first_party_id, required_scopes)
+        if (token is not None) and (token is not False):
+            # We need to credit the account
+            loginuser = User.objects.get(username=token.character_name)
+            user_account, _  = models.Account.objects.get_or_create(primary_user=loginuser,name=f"{loginuser.id}ISK")
+            trans = facade.transfer(source=bank,
+                        destination=user_account,
+                        amount=Decimal(journal.amount))
+            notify.send(bank, recipient=loginuser, verb=f"Your deposit has been processed",action_object=trans)
+            journal.ref_type = 'player_donation_processed'
+            journal.save()
+    # Now we gotta go through everyone's subscriptions
     return True
 
 @shared_task(name="updatecharactermeta") # requires a user_id
