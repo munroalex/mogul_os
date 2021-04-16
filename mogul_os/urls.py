@@ -83,5 +83,6 @@ urlpatterns = [
     re_path(r'^inbox/notifications/', include(notifications.urls, namespace='notifications')),
     path('chat/', include('chat.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
+    path('subscriptions/', include('subscriptions.urls')),
 ]
 

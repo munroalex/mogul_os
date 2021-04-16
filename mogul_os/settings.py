@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'django_singleton_admin',
     'django_discord_connector',
     'oscar_accounts.apps.AccountsConfig',
-    #'debug_toolbar',
+    'subscriptions',
 
 ]
 
@@ -289,5 +289,13 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'updatetransactionmeta', 
         'schedule': 300,
     },
+    'processsubscriptions-every-five-minutes': {
+        'task': 'processsubscriptions', 
+        'schedule': 300,
+    },
+
+    
 }
 CELERY_ALWAYS_EAGER = True
+
+DFS_MANAGER_CLASS = 'mogul_auth.manager.YetiManager'

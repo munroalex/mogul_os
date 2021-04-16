@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save,m2m_changed,post_delete
 from notifications.signals import notify
 from django.contrib.auth.models import User
 from django.dispatch import receiver
@@ -16,6 +16,7 @@ from django.dispatch import Signal
 
 from channels.layers import get_channel_layer
 from .serializers import NotificationSerializer
+
 
 async def update_notifications(notification):
     serializer = NotificationSerializer(notification)
