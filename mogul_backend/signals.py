@@ -70,3 +70,19 @@ def send_notification_to_discord(sender, instance, **kwargs):
         dembed=Embed(title="Your deposit has been processed", description=f"You can now use your balance from your deposit", color=0x008080)
         dembed.set_footer(text=f"Mogul_OS")
         instance.recipient.dm_user(embed=dembed.to_dict())
+    elif instance.verb == "SubExpired":
+        dembed=Embed(title="Subscription Expired", description=f"Your subscription has expired!", color=0xCC0000)
+        dembed.set_footer(text=f"Mogul_OS")
+        instance.recipient.dm_user(embed=dembed.to_dict())
+    elif instance.verb == "SubPaymentError":
+        dembed=Embed(title="Subscription Payment Error", description=f"Your subscription payment was not successful!", color=0xCC0000)
+        dembed.set_footer(text=f"Mogul_OS")
+        instance.recipient.dm_user(embed=dembed.to_dict())
+    elif instance.verb == "SubActivated":
+        dembed=Embed(title="Subscription Activated", description=f"Your subscription has been activated!", color=0x008080)
+        dembed.set_footer(text=f"Mogul_OS")
+        instance.recipient.dm_user(embed=dembed.to_dict())
+    elif instance.verb == "SubPaymentSuccess":
+        dembed=Embed(title="Subscription Extended", description=f"Your subscription payment was successful!", color=0x008080)
+        dembed.set_footer(text=f"Mogul_OS")
+        instance.recipient.dm_user(embed=dembed.to_dict())

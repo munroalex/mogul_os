@@ -5,14 +5,11 @@ from django.db.models import Q
 from oscar_accounts import models, exceptions, facade
 from django.utils import timezone
 from subscriptions import models as submodels
+from notifications.signals import notify
 
 class YetiManager(_manager.Manager):
 
     def process_payment(self, user, cost):
-        print(user.__dict__)
-        print(cost.__dict__)
-        
-
         accounts = models.Account.active.filter(primary_user=user).order_by('-name')
         transfers = []
         amount_to_allocate = cost.cost
@@ -78,6 +75,7 @@ class YetiManager(_manager.Manager):
 
             # Record the transaction details
             self.record_transaction(subscription,self.retrieve_transaction_date(payment_transaction))
+            self.notify_payment_success(subscription)
             #
         #
         else:
@@ -85,7 +83,6 @@ class YetiManager(_manager.Manager):
         return True
 
     def process_subscriptions(self):
-        print("GAY")
         
         """Calls all required subscription processing functions."""
         current = timezone.now()
@@ -107,3 +104,35 @@ class YetiManager(_manager.Manager):
 
         for subscription in due_subscriptions:
             self.process_due(subscription)
+
+    def notify_expired(self, subscription):
+        """Sends notification of expired subscription.
+            Parameters:
+                subscription (obj): A UserSubscription instance.
+        """
+        user = subscription.user
+        notify.send(subscription, recipient=user, verb=f"SubExpired",action_object=subscription)
+
+    def notify_new(self, subscription):
+        """Sends notification of newly active subscription
+            Parameters:
+                subscription (obj): A UserSubscription instance.
+        """
+        user = subscription.user
+        notify.send(subscription, recipient=user, verb=f"SubActivated",action_object=subscription)
+
+    def notify_payment_error(self, subscription):
+        """Sends notification of a payment error
+            Parameters:
+                subscription (obj): A UserSubscription instance.
+        """
+        user = subscription.user
+        notify.send(subscription, recipient=user, verb=f"SubPaymentError",action_object=subscription)
+
+    def notify_payment_success(self, subscription):
+        """Sends notifiation of a payment success
+            Parameters:
+                subscription (obj): A UserSubscription instance.
+        """
+        user = subscription.user
+        notify.send(subscription, recipient=user, verb=f"SubPaymentSuccess",action_object=subscription)

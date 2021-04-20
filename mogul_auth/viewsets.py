@@ -2,11 +2,13 @@ from django.contrib.auth.models import User, Group
 from esi.models import Token
 from rest_framework import viewsets
 from rest_framework import permissions
-from mogul_auth.serializers import UserSerializer, TokenSerializer
+from mogul_auth.serializers import UserSerializer, TokenSerializer, SubscriptionPlanSerializer,UserSubscriptionPlanSerializer
 from rest_framework.response import Response
 from esi.clients import EsiClientProvider
 from django.utils import timezone
 from mogul_backend.models import Transaction, Character, Order, Structure, Stock,Profit
+
+from subscriptions import models as submodels
 
 esi = EsiClientProvider(spec_file='mogul_auth/swagger.json')
 
@@ -23,6 +25,24 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+class SubscriptionViewset(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `retrieve` actions.
+    """
+    queryset = submodels.PlanCost.objects.all()
+    serializer_class = SubscriptionPlanSerializer
+    swagger_schema = None
+
+class UserSubscriptionViewset(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `retrieve` actions.
+    """
+    model = submodels.UserSubscription
+    serializer_class = UserSubscriptionPlanSerializer
+    def get_queryset(self):
+        """Overrides get_queryset to restrict list to logged in user."""
+        return self.model.objects.filter(user=self.request.user, active=True)
 
 class TokenViewSet(viewsets.ModelViewSet):
     """

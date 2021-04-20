@@ -22,7 +22,7 @@ from rest_framework_jwt.views import obtain_jwt_token,refresh_jwt_token
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
-from mogul_auth.viewsets import UserViewSet, TokenViewSet
+from mogul_auth.viewsets import UserViewSet, TokenViewSet,SubscriptionViewset,UserSubscriptionViewset
 from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet,NotificationViewSet,GlobalPreferencesViewSet,StockViewSet,ProfitViewSet
 
 from rest_framework import permissions
@@ -58,6 +58,10 @@ router.register(r'global', GlobalPreferencesViewSet, basename='global')
 router.register(r'preferences', UserPreferencesViewSet, basename='preferences')
 router.register(r'profit', ProfitViewSet, basename="profit")
 router.register(r'stock', StockViewSet, basename="stock")
+router.register(r'site_subscriptions', SubscriptionViewset, basename="site_subscriptions")
+router.register(r'subscriptions', UserSubscriptionViewset, basename="subscriptions")
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

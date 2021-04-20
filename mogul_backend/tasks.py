@@ -24,6 +24,12 @@ from hashlib import md5
 from celery.utils.log import get_task_logger
 from oscar_accounts import facade,models
 
+import importlib
+
+from django.core.management.base import BaseCommand
+
+from subscriptions.conf import SETTINGS
+
 logger = get_task_logger(__name__)
 
 esi = EsiClientProvider(spec_file='mogul_auth/swagger.json')
@@ -515,6 +521,13 @@ def processsubscriptions():
             journal.ref_type = 'player_donation_processed'
             journal.save()
     # Now we gotta go through everyone's subscriptions
+    Manager = getattr(  # pylint: disable=invalid-name
+        importlib.import_module(SETTINGS['management_manager']['module']),
+        SETTINGS['management_manager']['class']
+        )
+    manager = Manager()
+
+    manager.process_subscriptions()
     return True
 
 @shared_task(name="updatecharactermeta") # requires a user_id

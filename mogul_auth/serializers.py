@@ -3,6 +3,8 @@ from rest_framework import serializers
 from esi.models import Token
 from django.conf import settings
 
+from subscriptions import models as submodels
+
 
 class UserSerializer(serializers.ModelSerializer):
     groups = serializers.StringRelatedField(many=True)
@@ -27,3 +29,16 @@ class EsiCharacterTransactions(serializers.Serializer):
     transaction_id = serializers.IntegerField() #int64
     type_id = serializers.IntegerField() #int32
     unit_price = serializers.DecimalField(max_digits=24,decimal_places=2) #double
+
+class SubscriptionPlanSerializer(serializers.ModelSerializer):
+    plan = serializers.StringRelatedField()
+    class Meta:
+        model = submodels.PlanCost
+        fields = '__all__'
+
+class UserSubscriptionPlanSerializer(serializers.ModelSerializer):
+    subscription = serializers.SlugRelatedField(slug_field='slug',read_only=True)
+
+    class Meta:
+        model = submodels.UserSubscription
+        fields = '__all__'
