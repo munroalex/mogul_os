@@ -36,6 +36,14 @@ class ProfitSeriesViewset(PandasViewSet):
         if not df.empty:
             df = df.groupby(['profit_station'])['amount','taxes','quantity'].sum().round(2)
         return Response(df)
+
+    @action(methods=['get'], detail=False)
+    def get_profit_daily(self, request, pk=None):
+        qs = self.get_queryset()
+        df = qs.to_timeseries(index='date')
+        if not df.empty:
+            df = df.resample('1D')['amount','quantity','taxes'].sum()
+        return Response(df)
     def get_queryset(self):
         queryset = Profit.objects
         queryset.prefetch_related('profit_station')
