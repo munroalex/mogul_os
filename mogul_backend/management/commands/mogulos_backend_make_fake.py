@@ -37,7 +37,7 @@ class Command(BaseCommand):
             #let's make a fake buy transacton
             Transaction.objects.create(
                     client_id=random.choice(clients),
-                    date=random_date(datetime.date(2021,1,1), datetime.date(2021,2,1)),
+                    date=random_date(datetime.date(2021,4,1), datetime.date(2021,4,23)),
                     is_buy=1,
                     is_personal=1,
                     journal_ref_id=trans,
@@ -51,7 +51,7 @@ class Command(BaseCommand):
                     )
             Transaction.objects.create(
                     client_id=random.choice(clients),
-                    date=random_date(datetime.date(2021,2,1), datetime.date(2021,3,1)),
+                    date=random_date(datetime.date(2021,4,1), datetime.date(2021,4,23)),
                     is_buy=0,
                     is_personal=1,
                     journal_ref_id=trans + 100000,

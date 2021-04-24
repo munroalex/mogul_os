@@ -16,6 +16,7 @@ class MarketHistory(models.Model):
 	order_count = models.IntegerField()
 	volume = models.IntegerField()
 	date = models.DateTimeField(null=False)
+	region_id = models.IntegerField()
 
 class MarketOrders(models.Model):
 	item = models.ForeignKey(EveType,on_delete=models.CASCADE,help_text="The item involved on this profit row.",null=True)

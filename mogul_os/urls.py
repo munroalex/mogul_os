@@ -24,6 +24,7 @@ from rest_framework import routers, serializers, viewsets
 
 from mogul_auth.viewsets import UserViewSet, TokenViewSet,SubscriptionViewset,UserSubscriptionViewset
 from mogul_backend.viewsets import TransactionViewSet, OrderViewSet, CharacterViewSet,NotificationViewSet,GlobalPreferencesViewSet,StockViewSet,ProfitViewSet
+from mogul_backend.views import ProfitSeriesViewset
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -60,6 +61,10 @@ router.register(r'profit', ProfitViewSet, basename="profit")
 router.register(r'stock', StockViewSet, basename="stock")
 router.register(r'site_subscriptions', SubscriptionViewset, basename="site_subscriptions")
 router.register(r'subscriptions', UserSubscriptionViewset, basename="subscriptions")
+router.register(r'reports', ProfitSeriesViewset, basename="reports_profit")
+
+
+
 
 
 
@@ -88,5 +93,7 @@ urlpatterns = [
     path('chat/', include('chat.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
     path('subscriptions/', include('subscriptions.urls')),
+
+
 ]
 

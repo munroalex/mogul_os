@@ -11,7 +11,8 @@ from dynamic_preferences.serializers import BaseSerializer
 from decimal import Decimal, DecimalException
 from oscar_accounts.models import Transfer
 import decimal
-
+from django_pandas.managers import DataFrameManager
+from rest_pandas.serializers import PandasSerializer
 
 TWOPLACES = Decimal(10) ** -4
 
@@ -52,7 +53,7 @@ class UserCharacterSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(many=False, read_only=True)
     class Meta:
         model = Character
-        fields = ['character_id','corporation_id','alliance_id','name','user','last_esi_pull']
+        fields = ['character_id','corporation_id','alliance_id','name','user','last_esi_pull','id']
 
 class TransferSerializer(serializers.ModelSerializer):
     class Meta:
@@ -76,10 +77,22 @@ class UserProfitSerializer(serializers.ModelSerializer):
 
     amount = serializers.FloatField()
     taxes = serializers.FloatField()
+    
     tax_data = serializers.JSONField()
     class Meta:
         model = Profit
         fields = ['user','transaction','item','stock_data','date','updated','amount','quantity','station','taxes','tax_data']
+
+class UserProfitReportSerializer(UserProfitSerializer):
+    item = serializers.StringRelatedField(many=False, read_only=True)
+    amount = serializers.FloatField()
+    taxes = serializers.FloatField()
+    profit_station = serializers.StringRelatedField(many=False, read_only=True)
+    objects = DataFrameManager()
+    class Meta:
+        model = Profit
+        fields = ['item','amount','taxes','profit_station','quantity','item_id']
+        list_serializer_class = PandasSerializer
 
 class GenericNotificationRelatedField(serializers.RelatedField):
 

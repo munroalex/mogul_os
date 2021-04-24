@@ -3,6 +3,7 @@ from django.conf import settings
 from eveuniverse.models import EveType
 from django.utils import timezone
 from dynamic_preferences.models import PerInstancePreferenceModel
+from django_pandas.managers import DataFrameManager
 
 
 def one_day_ago():
@@ -180,6 +181,15 @@ class Profit(models.Model):
     taxes = models.DecimalField(default=0,max_digits=20,decimal_places=2)
     unit_tax = models.DecimalField(default=0,max_digits=20,decimal_places=2)
     tax_data = models.JSONField()
+    objects = DataFrameManager()
+
+    @property
+    def profit_station(self):
+        if(self.station > 70000000):
+            # It's a structure, let's get that
+            return Structure.objects.filter(id=self.station).first()
+        else:
+            return EveType.objects.filter(id=self.station).first()
 
 class Stock(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,help_text="The user to whom this stock belongs.")

@@ -17,6 +17,7 @@ from dynamic_preferences.api.viewsets import GlobalPreferencePermission,Preferen
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from cacheops import cached_as,cached_view_as
+from rest_framework.response import Response
 
 type_id_parameter = openapi.Parameter('type_id', openapi.IN_QUERY, description="Filter by type_id", type=openapi.TYPE_INTEGER)
 
@@ -79,17 +80,23 @@ class ProfitViewSet(generics.ListAPIView,viewsets.GenericViewSet):
     filterset_fields = ['item_id']
 
     def get_queryset(self):
-        queryset = Profit.objects.all()
-        queryset.filter(user=self.request.user)
+        queryset = Profit.objects.filter(user=self.request.user)
         return queryset
 
-class CharacterViewSet(generics.ListAPIView,viewsets.GenericViewSet):
+class CharacterViewSet(mixins.ListModelMixin,viewsets.GenericViewSet,mixins.RetrieveModelMixin):
     pagination_class = StandardResultsSetPagination
     serializer_class = UserCharacterSerializer
 
     def get_queryset(self):
         queryset = Character.objects.filter(user=self.request.user)
         return queryset
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        data['preferences'] = instance.preferences
+        return Response(data)
 
 class NotificationViewSet(generics.ListAPIView,viewsets.GenericViewSet):
     pagination_class = StandardResultsSetPagination

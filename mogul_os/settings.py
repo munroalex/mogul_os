@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'mogul_auth',
     'mogul_backend',
+    'eve_market',
     'esi',
     'rest_framework',
     'rest_framework_jwt',
